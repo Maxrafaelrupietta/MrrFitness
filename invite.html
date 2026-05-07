@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MRR Fitness Crew Invite</title>
+  <style>
+    :root {
+      --bg: #0a0f18;
+      --card: #131d2c;
+      --text: #e8eef7;
+      --muted: #9fb0c2;
+      --accent: #47e08a;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top right, #1a2a44, #0a0f18 58%);
+      color: var(--text);
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      width: min(560px, 100%);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.6rem;
+    }
+    p {
+      color: var(--muted);
+      margin: 0 0 14px;
+      line-height: 1.55;
+    }
+    .meta {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin: 12px 0 16px;
+      color: var(--text);
+      font-size: 0.92rem;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    a {
+      text-decoration: none;
+      color: #0b1018;
+      font-weight: 700;
+      background: var(--accent);
+      padding: 10px 14px;
+      border-radius: 10px;
+    }
+    a.secondary {
+      color: var(--text);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Du wurdest in eine Crew eingeladen</h1>
+    <p>Wir versuchen gerade, MRR Fitness fuer dich zu oeffnen.</p>
+    <div id="meta" class="meta">Lade Einladung...</div>
+    <div class="actions">
+      <a id="openApp" href="#">In App oeffnen</a>
+      <a id="openStore" class="secondary" href="#">Im App Store oeffnen</a>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const crew = params.get("crew") || "";
+      const ref = params.get("ref") || "";
+      const inviter = params.get("inviter") || "";
+      const providedDeepLink = params.get("deeplink");
+      const storeURL = params.get("store") || "https://apps.apple.com/de/search?term=MRR%20Fitness";
+
+      const fallbackDeepLink = "mrrfitness://join?crew=" + encodeURIComponent(crew) +
+        "&ref=" + encodeURIComponent(ref) +
+        (inviter ? "&inviter=" + encodeURIComponent(inviter) : "");
+
+      const deepLink = providedDeepLink || fallbackDeepLink;
+
+      const meta = document.getElementById("meta");
+      const openApp = document.getElementById("openApp");
+      const openStore = document.getElementById("openStore");
+
+      openApp.href = deepLink;
+      openStore.href = storeURL;
+
+      if (!crew) {
+        meta.textContent = "Ungueltiger Einladungslink. Bitte einen neuen Link anfordern.";
+        return;
+      }
+
+      meta.textContent = "Crew: " + crew + (ref ? " | Code: " + ref : "");
+
+      let appOpened = false;
+      document.addEventListener("visibilitychange", function () {
+        if (document.hidden) appOpened = true;
+      });
+
+      function openWithFallback() {
+        window.location.href = deepLink;
+        window.setTimeout(function () {
+          if (!appOpened) {
+            window.location.href = storeURL;
+          }
+        }, 1400);
+      }
+
+      window.setTimeout(openWithFallback, 220);
+    })();
+  </script>
+</body>
+</html>
